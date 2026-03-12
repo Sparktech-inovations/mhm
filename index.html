@@ -220,18 +220,21 @@ alert("Schedule Uploaded Successfully ✅");
 function deleteSchedule(key){
     if(confirm("Delete this entry?")) {
         database.ref("/SchoolBell/schedule/" + key).remove();
+        database.ref("/SchoolBell/updateFlag").set(true);
     }
 }
 
 function clearAllSchedules() {
     if(confirm("Are you sure you want to clear the entire timetable?")) {
         database.ref("/SchoolBell/schedule").set(null);
+        database.ref("/SchoolBell/updateFlag").set(true);
         alert("Timetable Cleared!");
     }
 }
 </script>
 </body>
 </html>
+
 
 
 
