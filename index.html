@@ -213,7 +213,7 @@ hour: hour,
 minute: minute,
 duration: duration
 });
-
+database.ref("/SchoolBell/updateFlag").set(true);
 alert("Schedule Uploaded Successfully ✅");
 }
 
@@ -232,5 +232,6 @@ function clearAllSchedules() {
 </script>
 </body>
 </html>
+
 
 
