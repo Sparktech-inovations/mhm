@@ -12,7 +12,6 @@
             background-attachment: fixed;
             color: white;
         }
-        /* HEADER */
         header {
             background: rgba(0,0,0,0.8);
             padding: 15px 20px;
@@ -22,14 +21,13 @@
             flex-wrap: wrap;
         }
         .logoSection { display: flex; align-items: center; }
-        .logoSection img { height: 80px; margin-right: 20px; }
+        .logoSection img { height: 70px; margin-right: 15px; }
         .schoolName { font-size: 22px; font-weight: bold; }
         .statusClockBox { display: flex; flex-direction: column; align-items: flex-end; }
         #clock { font-size: 26px; font-weight: bold; }
         #date { font-size: 14px; }
         #espStatus { margin-top: 5px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; background: gray; transition: 0.3s; }
         
-        /* CONTAINER */
         .container { width: 95%; margin: auto; margin-top: 20px; padding-bottom: 80px; }
         .card { background: rgba(255,255,255,0.95); color: black; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); margin-bottom: 20px; }
         input, select { padding: 8px; margin: 5px; border-radius: 6px; border: 1px solid #ccc; }
@@ -37,6 +35,7 @@
         .addBtn { background: #27ae60; color: white; }
         .ringBtn { background: #e67e22; color: white; }
         .deleteBtn { background: #e74c3c; color: white; }
+        .clearBtn { background: #34495e; color: white; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
@@ -55,7 +54,7 @@
 <header>
     <div class="logoSection">
         <img src="logo.png">
-        <div class="schoolName">Spark_Tech Smart Bell</div>
+        <div class="schoolName">Sparktron Smart Bell</div>
     </div>
     <div class="statusClockBox">
         <div id="clock">00:00:00</div>
@@ -74,23 +73,22 @@
 
     <div class="card hidden" id="dashboard">
         <h3>Add Bell Schedule</h3>
-        <select id="day">
-            <option>Sunday</option>
-            <option>Monday</option>
-            <option>Tuesday</option>
-            <option>Wednesday</option>
-            <option>Thursday</option>
-            <option>Friday</option>
-            <option>Saturday</option>
-        </select>
+        <div id="daySelection">
+<label><input type="checkbox" value="Monday"> Mon</label>
+<label><input type="checkbox" value="Tuesday"> Tue</label>
+<label><input type="checkbox" value="Wednesday"> Wed</label>
+<label><input type="checkbox" value="Thursday"> Thu</label>
+<label><input type="checkbox" value="Friday"> Fri</label>
+<label><input type="checkbox" value="Saturday"> Sat</label>
+<label><input type="checkbox" value="Sunday"> Sun</label>
+</div>
         <input type="number" id="hour" min="0" max="23" placeholder="Hour">
         <input type="number" id="minute" min="0" max="59" placeholder="Minute">
         <input type="number" id="duration" placeholder="Duration (sec)">
         <br>
-        <label><input type="checkbox" id="repeatNext"> Repeat Next Day</label>
-        <label><input type="checkbox" id="repeatWeek"> Repeat Full Week</label>
         <br>
         <button class="addBtn" onclick="addSchedule()">Upload Schedule</button>
+        <button class="clearBtn" onclick="clearAllSchedules()">🗑️ Clear All</button>
         <button class="ringBtn" onclick="remoteRing()">🔔 Ring Now (Manual)</button>
 
         <h3>Weekly Time Table</h3>
@@ -113,17 +111,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
-/* 🔥 YOUR FIREBASE CONFIG */
 const firebaseConfig = {
-    apiKey: "AIzaSyCkl4p4SnS84EzLIyIjTk5euJH9lx9FVSI",
-    authDomain: "sparktrontechbell.firebaseapp.com",
-    databaseURL: "https://sparktrontechbell-default-rtdb.firebaseio.com",
-    projectId: "sparktrontechbell",
+    apiKey: "AIzaSyAB71uBxYlLU2UFs0qhdjlflSDLXKbtRXs",
+    authDomain: "sparktech-smart-bell.firebaseapp.com",
+    databaseURL: "https://sparktech-smart-bell-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "sparktech-smart-bell",
 };
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-/* CLOCK (IST Compatible) */
 function updateClock(){
     const now = new Date();
     document.getElementById("clock").innerText = now.toLocaleTimeString('en-IN', { hour12: false });
@@ -132,7 +128,6 @@ function updateClock(){
 setInterval(updateClock, 1000);
 updateClock();
 
-/* LOGIN */
 function login(){
     if(document.getElementById("username").value === "srjadhav" && document.getElementById("password").value === "7588"){
         document.getElementById("loginBox").classList.add("hidden");
@@ -142,15 +137,12 @@ function login(){
     }
 }
 
-/* ESP STATUS TRACKER */
 database.ref("/SchoolBell/espStatus").on("value", (snapshot) => {
     const lastUpdate = snapshot.val();
     const statusDiv = document.getElementById("espStatus");
     if(!lastUpdate) return;
-    
-    // Check if the difference is less than 20 seconds
     const diff = Date.now() - lastUpdate;
-    if(diff < 20000){
+    if(diff < 40000){ // 40 seconds buffer
         statusDiv.style.background = "green";
         statusDiv.innerText = "🟢 ESP32 ONLINE";
     } else {
@@ -159,19 +151,16 @@ database.ref("/SchoolBell/espStatus").on("value", (snapshot) => {
     }
 });
 
-/* MANUAL TRIGGER */
 function remoteRing() {
     database.ref("/SchoolBell/manualTrigger").set(true);
     alert("Manual Ring Command Sent!");
 }
 
-/* LOAD TABLE DAY-WISE & TIME SORTED */
 const dayOrder = { "Sunday":0, "Monday":1, "Tuesday":2, "Wednesday":3, "Thursday":4, "Friday":5, "Saturday":6 };
 
 database.ref("/SchoolBell/schedule").on("value", (snapshot) => {
     let table = document.getElementById("table");
     table.innerHTML = "<tr><th>Day</th><th>Time (24H)</th><th>Duration</th><th>Action</th></tr>";
-    
     let dataArray = [];
     snapshot.forEach((child) => {
         let data = child.val();
@@ -179,64 +168,69 @@ database.ref("/SchoolBell/schedule").on("value", (snapshot) => {
         dataArray.push(data);
     });
 
-    /* SORTING */
     dataArray.sort((a,b) => {
         if(dayOrder[a.day] !== dayOrder[b.day]) return dayOrder[a.day] - dayOrder[b.day];
         if(a.hour !== b.hour) return a.hour - b.hour;
         return a.minute - b.minute;
     });
 
-    /* DISPLAY */
     dataArray.forEach((data) => {
         let row = table.insertRow(-1);
-        row.insertCell(0).innerHTML = data.day;
+        row.insertCell(0).innerHTML = data.days.join(", ");
         row.insertCell(1).innerHTML = String(data.hour).padStart(2,'0') + ":" + String(data.minute).padStart(2,'0');
         row.insertCell(2).innerHTML = data.duration + " sec";
         row.insertCell(3).innerHTML = `<button class='deleteBtn' onclick="deleteSchedule('${data.key}')">Delete</button>`;
     });
 });
 
-/* ADD SCHEDULE */
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function addSchedule(){
-    let day = document.getElementById("day").value;
-    let hour = parseInt(document.getElementById("hour").value);
-    let minute = parseInt(document.getElementById("minute").value);
-    let duration = parseInt(document.getElementById("duration").value);
-    let repeatNext = document.getElementById("repeatNext").checked;
-    let repeatWeek = document.getElementById("repeatWeek").checked;
 
-    if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
-        alert("Fill all fields correctly");
-        return;
-    }
+let hour = parseInt(document.getElementById("hour").value);
+let minute = parseInt(document.getElementById("minute").value);
+let duration = parseInt(document.getElementById("duration").value);
 
-    function pushToFirebase(d) {
-        database.ref("/SchoolBell/schedule").push({
-            day: d, hour: hour, minute: minute, duration: duration
-        });
-    }
-
-    if(repeatWeek){
-        days.forEach(d => pushToFirebase(d));
-    } else {
-        pushToFirebase(day);
-        if(repeatNext){
-            let nextIndex = (days.indexOf(day) + 1) % 7;
-            pushToFirebase(days[nextIndex]);
-        }
-    }
-    alert("Schedule Uploaded Successfully ✅");
+if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
+alert("Fill all fields correctly");
+return;
 }
 
-/* DELETE */
+let selectedDays = [];
+
+document.querySelectorAll("#daySelection input:checked").forEach(cb=>{
+selectedDays.push(cb.value);
+});
+
+if(selectedDays.length === 0){
+alert("Select at least one day");
+return;
+}
+
+database.ref("/SchoolBell/schedule").push({
+days: selectedDays,
+hour: hour,
+minute: minute,
+duration: duration
+});
+
+alert("Schedule Uploaded Successfully ✅");
+}
+
 function deleteSchedule(key){
     if(confirm("Delete this entry?")) {
         database.ref("/SchoolBell/schedule/" + key).remove();
     }
 }
+
+function clearAllSchedules() {
+    if(confirm("Are you sure you want to clear the entire timetable?")) {
+        database.ref("/SchoolBell/schedule").set(null);
+        alert("Timetable Cleared!");
+    }
+}
 </script>
 </body>
 </html>
+
 
