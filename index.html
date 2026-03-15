@@ -176,7 +176,7 @@ database.ref("/SchoolBell/schedule").on("value", (snapshot) => {
 
     dataArray.forEach((data) => {
         let row = table.insertRow(-1);
-        row.insertCell(0).innerHTML = data.days.join(", ");
+        row.insertCell(0).innerHTML = data.day;
         row.insertCell(1).innerHTML = String(data.hour).padStart(2,'0') + ":" + String(data.minute).padStart(2,'0');
         row.insertCell(2).innerHTML = data.duration + " sec";
         row.insertCell(3).innerHTML = `<button class='deleteBtn' onclick="deleteSchedule('${data.key}')">Delete</button>`;
@@ -186,39 +186,44 @@ database.ref("/SchoolBell/schedule").on("value", (snapshot) => {
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function addSchedule(){
-    let hour = parseInt(document.getElementById("hour").value);
-    let minute = parseInt(document.getElementById("minute").value);
-    let duration = parseInt(document.getElementById("duration").value);
 
-    if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
-        alert("Fill all fields correctly");
-        return;
-    }
+let hour = parseInt(document.getElementById("hour").value);
+let minute = parseInt(document.getElementById("minute").value);
+let duration = parseInt(document.getElementById("duration").value);
 
-    let selectedDays = [];
-    document.querySelectorAll("#daySelection input:checked").forEach(cb => {
-        selectedDays.push(cb.value);
-    });
-
-    if(selectedDays.length === 0){
-        alert("Select at least one day");
-        return;
-    }
-
-    // Create a separate entry for each day to match ESP32 struct
-    selectedDays.forEach(day => {
-        database.ref("/SchoolBell/schedule").push({
-            day: day, // Singular 'day' as a string
-            hour: hour,
-            minute: minute,
-            duration: duration
-        });
-    });
-
-    database.ref("/SchoolBell/updateFlag").set(true);
-    alert("Schedules Uploaded Successfully ✅");
+if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
+alert("Fill all fields correctly");
+return;
 }
 
+let selectedDays = [];
+
+document.querySelectorAll("#daySelection input:checked").forEach(cb=>{
+selectedDays.push(cb.value);
+});
+
+if(selectedDays.length === 0){
+alert("Select at least one day");
+return;
+}
+
+// create separate entry for each day
+selectedDays.forEach(day => {
+
+database.ref("/SchoolBell/schedule").push({
+day: day,
+hour: hour,
+minute: minute,
+duration: duration
+});
+
+});
+
+database.ref("/SchoolBell/updateFlag").set(true);
+
+alert("Schedule Uploaded Successfully ✅");
+
+}
 function deleteSchedule(key){
     if(confirm("Delete this entry?")) {
         database.ref("/SchoolBell/schedule/" + key).remove();
