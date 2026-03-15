@@ -186,35 +186,37 @@ database.ref("/SchoolBell/schedule").on("value", (snapshot) => {
 const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function addSchedule(){
+    let hour = parseInt(document.getElementById("hour").value);
+    let minute = parseInt(document.getElementById("minute").value);
+    let duration = parseInt(document.getElementById("duration").value);
 
-let hour = parseInt(document.getElementById("hour").value);
-let minute = parseInt(document.getElementById("minute").value);
-let duration = parseInt(document.getElementById("duration").value);
+    if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
+        alert("Fill all fields correctly");
+        return;
+    }
 
-if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
-alert("Fill all fields correctly");
-return;
-}
+    let selectedDays = [];
+    document.querySelectorAll("#daySelection input:checked").forEach(cb => {
+        selectedDays.push(cb.value);
+    });
 
-let selectedDays = [];
+    if(selectedDays.length === 0){
+        alert("Select at least one day");
+        return;
+    }
 
-document.querySelectorAll("#daySelection input:checked").forEach(cb=>{
-selectedDays.push(cb.value);
-});
+    // Create a separate entry for each day to match ESP32 struct
+    selectedDays.forEach(day => {
+        database.ref("/SchoolBell/schedule").push({
+            day: day, // Singular 'day' as a string
+            hour: hour,
+            minute: minute,
+            duration: duration
+        });
+    });
 
-if(selectedDays.length === 0){
-alert("Select at least one day");
-return;
-}
-
-database.ref("/SchoolBell/schedule").push({
-days: selectedDays,
-hour: hour,
-minute: minute,
-duration: duration
-});
-database.ref("/SchoolBell/updateFlag").set(true);
-alert("Schedule Uploaded Successfully ✅");
+    database.ref("/SchoolBell/updateFlag").set(true);
+    alert("Schedules Uploaded Successfully ✅");
 }
 
 function deleteSchedule(key){
