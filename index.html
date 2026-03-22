@@ -1,203 +1,201 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart School Bell Panel</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            background: linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)), url("background.jpg");
-            background-size: cover;
-            background-attachment: fixed;
-            color: white;
-        }
-        header {
-            background: rgba(0,0,0,0.8);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .logoSection { display: flex; align-items: center; }
-        .logoSection img { height: 70px; margin-right: 15px; }
-        .schoolName { font-size: 22px; font-weight: bold; }
-        .statusClockBox { display: flex; flex-direction: column; align-items: flex-end; }
-        #clock { font-size: 26px; font-weight: bold; }
-        #date { font-size: 14px; }
-        #espStatus { margin-top: 5px; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; background: gray; transition: 0.3s; }
-        
-        .container { width: 95%; margin: auto; margin-top: 20px; padding-bottom: 80px; }
-        .card { background: rgba(255,255,255,0.95); color: black; padding: 20px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); margin-bottom: 20px; }
-        input, select { padding: 8px; margin: 5px; border-radius: 6px; border: 1px solid #ccc; }
-        button { padding: 8px 15px; border: none; border-radius: 6px; cursor: pointer; margin: 3px; font-weight: bold; }
-        .addBtn { background: #27ae60; color: white; }
-        .ringBtn { background: #e67e22; color: white; }
-        .deleteBtn { background: #e74c3c; color: white; }
-        .clearBtn { background: #34495e; color: white; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        .hidden { display: none; }
-        footer { position: fixed; bottom: 10px; right: 10px; background: #1e3d59; color: white; padding: 10px 15px; border-radius: 8px; font-size: 13px; box-shadow: 0 3px 8px rgba(0,0,0,0.5); z-index: 1000; }
-        
-        @media(max-width:600px) {
-            input, select { width: 100%; margin: 5px 0; }
-            header { flex-direction: column; align-items: flex-start; }
-            .statusClockBox { align-items: flex-start; margin-top: 10px; }
-        }
-    </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart School Bell Panel</title>
+
+<style>
+body {
+    font-family: 'Segoe UI';
+    margin: 0;
+    background: #1e1e2f;
+    color: white;
+}
+.container { width: 95%; margin: auto; margin-top: 20px; }
+.card {
+    background: white;
+    color: black;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+input { padding: 6px; margin: 5px; }
+button { padding: 6px 12px; margin: 3px; cursor: pointer; }
+
+.addBtn { background: green; color: white; }
+.deleteBtn { background: red; color: white; }
+.ringBtn { background: orange; color: white; }
+
+.hidden { display: none; }
+
+.timeRow { margin-bottom: 5px; }
+</style>
 </head>
+
 <body>
 
-<header>
-    <div class="logoSection">
-        <img src="logo.png">
-        <div class="schoolName">Sparktron Smart Bell</div>
-    </div>
-    <div class="statusClockBox">
-        <div id="clock">00:00:00</div>
-        <div id="date">Loading...</div>
-        <div id="espStatus">Checking ESP...</div>
-    </div>
-</header>
-
 <div class="container">
-    <div class="card" id="loginBox">
-        <h3>Admin Login</h3>
-        <input type="text" id="username" placeholder="Username"><br>
-        <input type="password" id="password" placeholder="Password"><br>
-        <button class="addBtn" onclick="login()">Login</button>
-    </div>
 
-    <div class="card hidden" id="dashboard">
-        <h3>Add Bell Schedule</h3>
-        <div id="daySelection">
-<label><input type="checkbox" value="Monday"> Mon</label>
-<label><input type="checkbox" value="Tuesday"> Tue</label>
-<label><input type="checkbox" value="Wednesday"> Wed</label>
-<label><input type="checkbox" value="Thursday"> Thu</label>
-<label><input type="checkbox" value="Friday"> Fri</label>
-<label><input type="checkbox" value="Saturday"> Sat</label>
-<label><input type="checkbox" value="Sunday"> Sun</label>
-</div>
-        <input type="number" id="hour" min="0" max="23" placeholder="Hour">
-        <input type="number" id="minute" min="0" max="59" placeholder="Minute">
-        <input type="number" id="duration" placeholder="Duration (sec)">
-        <br>
-        <br>
-        <button class="addBtn" onclick="addSchedule()">Upload Schedule</button>
-        <button class="clearBtn" onclick="clearAllSchedules()">🗑️ Clear All</button>
-        <button class="ringBtn" onclick="remoteRing()">🔔 Ring Now (Manual)</button>
-
-        <h3>Weekly Time Table</h3>
-        <table id="table">
-            <tr>
-                <th>Day</th>
-                <th>Time (24H)</th>
-                <th>Duration</th>
-                <th>Action</th>
-            </tr>
-        </table>
-    </div>
+<!-- LOGIN -->
+<div class="card" id="loginBox">
+<h3>Login</h3>
+<input id="username" placeholder="Username"><br>
+<input id="password" type="password" placeholder="Password"><br>
+<button onclick="login()">Login</button>
 </div>
 
-<footer>
-    Developed by Vishwajeet Jadhav <br> 📞9322244959 <br> 📧jadhavvishwajeet94@gmail.com
-</footer>
+<!-- DASHBOARD -->
+<div class="card hidden" id="dashboard">
 
+<h3>Create Schedule</h3>
+
+<div id="daySelection">
+<label><input type="checkbox" value="Monday">Mon</label>
+<label><input type="checkbox" value="Tuesday">Tue</label>
+<label><input type="checkbox" value="Wednesday">Wed</label>
+<label><input type="checkbox" value="Thursday">Thu</label>
+<label><input type="checkbox" value="Friday">Fri</label>
+<label><input type="checkbox" value="Saturday">Sat</label>
+<label><input type="checkbox" value="Sunday">Sun</label>
+</div>
+
+<h4>Timings</h4>
+
+<div id="timingsContainer">
+<div class="timeRow">
+<input type="number" class="hour" placeholder="Hour" min="0" max="23">
+<input type="number" class="minute" placeholder="Minute" min="0" max="59">
+<input type="number" class="duration" placeholder="Duration">
+<button onclick="removeRow(this)">❌</button>
+</div>
+</div>
+
+<button onclick="addRow()">➕ Add Time</button>
+
+<br><br>
+
+<button class="addBtn" id="uploadBtn" onclick="addSchedule()">Upload Schedule</button>
+
+<p id="limitMsg" style="color:red; display:none;">
+⚠️ Max 15 schedules reached. Delete one to add new.
+</p>
+
+<h3>Schedules</h3>
+
+<table border="1" width="100%" id="table">
+<tr>
+<th>Days</th>
+<th>Timings</th>
+<th>Actions</th>
+</tr>
+</table>
+
+</div>
+</div>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
 <script>
+
+// 🔥 CONFIG (same as yours)
 const firebaseConfig = {
-    apiKey: "AIzaSyAB71uBxYlLU2UFs0qhdjlflSDLXKbtRXs",
-    authDomain: "sparktech-smart-bell.firebaseapp.com",
-    databaseURL: "https://sparktech-smart-bell-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "sparktech-smart-bell",
+apiKey: "YOUR_KEY",
+authDomain: "YOUR_PROJECT.firebaseapp.com",
+databaseURL: "YOUR_DB_URL",
+projectId: "YOUR_PROJECT"
 };
+
 firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+const db = firebase.database();
 
-function updateClock(){
-    const now = new Date();
-    document.getElementById("clock").innerText = now.toLocaleTimeString('en-IN', { hour12: false });
-    document.getElementById("date").innerText = now.toLocaleDateString('en-IN', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-}
-setInterval(updateClock, 1000);
-updateClock();
-
+// 🔐 LOGIN
 function login(){
-    if(document.getElementById("username").value === "srjadhav" && document.getElementById("password").value === "7588"){
-        document.getElementById("loginBox").classList.add("hidden");
-        document.getElementById("dashboard").classList.remove("hidden");
-    } else {
-        alert("Wrong login");
-    }
+if(username.value==="srjadhav" && password.value==="7588"){
+loginBox.classList.add("hidden");
+dashboard.classList.remove("hidden");
+}else{
+alert("Wrong login");
+}
 }
 
-database.ref("/SchoolBell/espStatus").on("value", (snapshot) => {
-    const lastUpdate = snapshot.val();
-    const statusDiv = document.getElementById("espStatus");
-    if(!lastUpdate) return;
-    const diff = Date.now() - lastUpdate;
-    if(diff < 40000){ // 40 seconds buffer
-        statusDiv.style.background = "green";
-        statusDiv.innerText = "🟢 ESP32 ONLINE";
-    } else {
-        statusDiv.style.background = "red";
-        statusDiv.innerText = "🔴 ESP32 OFFLINE";
-    }
-});
+// ➕ ADD ROW
+function addRow(){
+let div = document.createElement("div");
+div.className = "timeRow";
 
-function remoteRing() {
-    database.ref("/SchoolBell/manualTrigger").set(true);
-    alert("Manual Ring Command Sent!");
+div.innerHTML = `
+<input type="number" class="hour" placeholder="Hour" min="0" max="23">
+<input type="number" class="minute" placeholder="Minute" min="0" max="59">
+<input type="number" class="duration" placeholder="Duration">
+<button onclick="removeRow(this)">❌</button>
+`;
+
+timingsContainer.appendChild(div);
 }
 
-const dayOrder = { "Sunday":0, "Monday":1, "Tuesday":2, "Wednesday":3, "Thursday":4, "Friday":5, "Saturday":6 };
+// ❌ REMOVE ROW
+function removeRow(btn){
+btn.parentElement.remove();
+}
 
-database.ref("/SchoolBell/schedule").on("value", (snapshot) => {
+// 🔁 GLOBAL TRACK
+let usedDays = {};
+let scheduleCount = 0;
+
+// 🔄 LOAD DATA
+db.ref("SchoolBell/schedules").on("value", snap => {
 
 let table = document.getElementById("table");
+table.innerHTML = `<tr><th>Days</th><th>Timings</th><th>Actions</th></tr>`;
 
-table.innerHTML =
-"<tr><th>Day</th><th>Time (24H)</th><th>Duration</th><th>Action</th></tr>";
+usedDays = {};
+scheduleCount = 0;
 
-snapshot.forEach((child)=>{
+snap.forEach(child => {
+
+scheduleCount++;
 
 let data = child.val();
 
-let row = table.insertRow(-1);
+// Track used days
+data.days?.forEach(d => usedDays[d] = child.key);
 
-row.insertCell(0).innerHTML = data.day;
+// Format days
+let days = data.days?.join(", ") || "";
 
-row.insertCell(1).innerHTML =
-String(data.hour).padStart(2,'0') + ":" +
-String(data.minute).padStart(2,'0');
+// Format timings
+let timings = "";
+data.timings?.forEach(t=>{
+timings += `${t.hour}:${t.minute} (${t.duration}s)<br>`;
+});
 
-row.insertCell(2).innerHTML = data.duration + " sec";
+// Add row
+let row = table.insertRow();
+row.insertCell(0).innerHTML = days;
+row.insertCell(1).innerHTML = timings;
 
-row.insertCell(3).innerHTML =
-`<button class='deleteBtn' onclick="deleteSchedule('${child.key}')">Delete</button>`;
+row.insertCell(2).innerHTML = `
+<button class="deleteBtn" onclick="deleteSchedule('${child.key}')">Delete</button>
+<button class="ringBtn" onclick="editDays('${child.key}', ${JSON.stringify(data.days)})">Edit Days</button>
+`;
 
 });
 
-});
-
-const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-function addSchedule(){
-
-let hour = parseInt(document.getElementById("hour").value);
-let minute = parseInt(document.getElementById("minute").value);
-let duration = parseInt(document.getElementById("duration").value);
-
-if(isNaN(hour) || isNaN(minute) || isNaN(duration)){
-alert("Fill all fields correctly");
-return;
+// LIMIT
+if(scheduleCount>=15){
+uploadBtn.disabled = true;
+limitMsg.style.display = "block";
+}else{
+uploadBtn.disabled = false;
+limitMsg.style.display = "none";
 }
+
+});
+
+// ➕ ADD SCHEDULE
+function addSchedule(){
 
 let selectedDays = [];
 
@@ -205,46 +203,83 @@ document.querySelectorAll("#daySelection input:checked").forEach(cb=>{
 selectedDays.push(cb.value);
 });
 
-if(selectedDays.length === 0){
-alert("Select at least one day");
+if(selectedDays.length===0){
+alert("Select days");
 return;
 }
 
-// create separate entry for each day
-selectedDays.forEach(day => {
-
-database.ref("/SchoolBell/schedule").push({
-day: day,
-hour: hour,
-minute: minute,
-duration: duration
-});
-
-});
-
-database.ref("/SchoolBell/updateFlag").set(true);
-
-alert("Schedule Uploaded Successfully ✅");
-
+// CHECK DAY CONFLICT
+for(let d of selectedDays){
+if(usedDays[d]){
+alert(d+" already has schedule");
+return;
 }
+}
+
+// GET TIMINGS
+let timings = [];
+
+document.querySelectorAll(".timeRow").forEach(row=>{
+
+let h = parseInt(row.querySelector(".hour").value);
+let m = parseInt(row.querySelector(".minute").value);
+let d = parseInt(row.querySelector(".duration").value);
+
+if(!isNaN(h)&&!isNaN(m)&&!isNaN(d)){
+timings.push({hour:h, minute:m, duration:d});
+}
+
+});
+
+if(timings.length===0){
+alert("Add valid timings");
+return;
+}
+
+// SAVE
+db.ref("SchoolBell/schedules").push({
+days: selectedDays,
+timings: timings
+});
+
+db.ref("SchoolBell/updateFlag").set(true);
+
+alert("Schedule added ✅");
+}
+
+// ❌ DELETE
 function deleteSchedule(key){
-    if(confirm("Delete this entry?")) {
-        database.ref("/SchoolBell/schedule/" + key).remove();
-        database.ref("/SchoolBell/updateFlag").set(true);
-    }
+if(confirm("Delete?")){
+db.ref("SchoolBell/schedules/"+key).remove();
+db.ref("SchoolBell/updateFlag").set(true);
+}
 }
 
-function clearAllSchedules() {
-    if(confirm("Are you sure you want to clear the entire timetable?")) {
-        database.ref("/SchoolBell/schedule").set(null);
-        database.ref("/SchoolBell/updateFlag").set(true);
-        alert("Timetable Cleared!");
-    }
+// ✏️ EDIT DAYS
+function editDays(key, currentDays){
+
+let input = prompt("Edit days comma separated:", currentDays.join(","));
+
+if(!input) return;
+
+let newDays = input.split(",").map(d=>d.trim());
+
+// CHECK CONFLICT
+for(let d of newDays){
+if(usedDays[d] && usedDays[d]!==key){
+alert(d+" already used");
+return;
 }
+}
+
+// UPDATE
+db.ref("SchoolBell/schedules/"+key+"/days").set(newDays);
+db.ref("SchoolBell/updateFlag").set(true);
+
+alert("Updated ✅");
+}
+
 </script>
+
 </body>
 </html>
-
-
-
-
